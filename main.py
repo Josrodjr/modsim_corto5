@@ -62,16 +62,12 @@ distance_ling = lambda x: 0.02551565 + 0.01470778*x - 0.00005531812*x**2 if x < 
 # return the direction based on the signs of the triangle legs REQUIRES SIGNED INPUT
 orientation_ling = lambda x, y: 'NO' if (x == 1 and y == 1) else ('NE' if (x == -1 and y == 1) else ('SE' if (x ==-1 and y ==-1) else ('SO' if (x ==1 and y ==-1) else 0)))
 
-a = 6
-b = -7
-print(orientation_ling(sign(a), sign(b)))
-
 # not used
 # orientation_ling = lambda a: 'N' if (a > 45 and a < 135) else ('O' if (a > 135 and a < 180) else ('E' if (a > 0 and a < 45) else 0))
 
 # pygame CONST
 WIDTH = 300  # width window
-HEIGHT = 600 # height window
+HEIGHT = 300 # height window
 FPS = 30 # frames per second
 
 # pygames graphic display
@@ -83,11 +79,11 @@ clock = pygame.time.Clock()
 # random positions
 # ball
 ball_x = WIDTH / 2 + randint(-140,140)
-ball_y = HEIGHT / 2 + randint(-250, 250)
+ball_y = HEIGHT / 2 + randint(-140, 140)
 
 # player
 player_x = WIDTH / 2 + randint(-140,140)
-player_y = HEIGHT / 2 + randint(-250, 250)
+player_y = HEIGHT / 2 + randint(-140, 140)
 player_init_angle = randint(0, 360)
 
 # pygame classes
@@ -97,7 +93,9 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.image.load(os.path.join('mario.png'))
         self.imageOriginal = pygame.image.load(os.path.join('mario.png'))
         self.rect = self.image.get_rect()
-        self.rect.center = (player_x, player_y)
+        self.rect.center = (HEIGHT/2, WIDTH/2)
+        self.rect.x = player_x
+        self.rect.y = player_y
         self.rotation = 0
         self.rotatePlayer(player_init_angle)
 
@@ -110,7 +108,17 @@ class Player(pygame.sprite.Sprite):
         self.rotation += angle
         self.image = pygame.transform.rotate(self.imageOriginal, self.rotation)
         self.rect = self.image.get_rect()
-        self.rect.center = (ball_x, ball_y)
+        self.rect.center = (HEIGHT/2, WIDTH/2)
+        self.rect.x = player_x
+        self.rect.y = player_y
+
+    def rotatePlayerTo(self, angle):
+        self.rotation = angle
+        self.image = pygame.transform.rotate(self.imageOriginal, self.rotation)
+        self.rect = self.image.get_rect()
+        self.rect.center = (HEIGHT/2, WIDTH/2)
+        self.rect.x = player_x
+        self.rect.y = player_y
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self):
@@ -118,17 +126,29 @@ class Ball(pygame.sprite.Sprite):
         self.image = pygame.Surface((3, 3))
         self.image.fill((255,100,0))
         self.rect = self.image.get_rect()
-        self.rect.center = (WIDTH / 2 + (randint(-140,140)), HEIGHT / 2 + randint(-250, 250))
+        self.rect.center = (HEIGHT/2, WIDTH/2)
+        self.rect.x = ball_x
+        self.rect.y = ball_y
 
 # methods for calculations
 def ball_player_ang(bx = ball_x, by = ball_y, px = player_x, py = player_y):
     triangle_x = bx - px
     triangle_y = by - py
-    print(triangle_x)
-    print(triangle_y)
-    print(math.tanh(triangle_x / triangle_y))
 
-ball_player_ang()
+    cuadrante = lambda x, y: 'RD' if (x == 1 and y == 1) else ('LD' if (x == -1 and y == 1) else ('LU' if (x ==-1 and y ==-1) else ('RU' if (x ==1 and y ==-1) else 0)))
+    cua = cuadrante(sign(triangle_x), sign(triangle_y))
+    angle = abs(math.degrees(math.atan(triangle_y / triangle_x)))
+
+    if cua == "RU":
+        angle = 270 + angle
+    elif cua == "RD":
+        angle = 270 - angle
+    elif cua == "LU":
+        angle = 90 - angle
+    elif cua == "LD":
+        angle = 90 + angle
+
+    return angle
 
 # sprites
 all_sprites = pygame.sprite.Group()
@@ -136,6 +156,8 @@ player = Player()
 ball = Ball()
 all_sprites.add(player)
 all_sprites.add(ball)
+
+player.rotatePlayerTo(ball_player_ang())
 
 # display loop
 done = False
