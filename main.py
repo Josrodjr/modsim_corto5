@@ -98,6 +98,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.y = player_y
         self.rotation = 0
         self.rotatePlayer(player_init_angle)
+        self.rotateTo = 1
 
     def update(self):
         self.rect.x += 2
@@ -131,7 +132,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.y = ball_y
 
 # methods for calculations
-def ball_player_ang(bx = ball_x, by = ball_y, px = player_x, py = player_y):
+def ball_player_ang(gameobject, bx = ball_x, by = ball_y, px = player_x, py = player_y):
     triangle_x = bx - px
     triangle_y = by - py
 
@@ -148,7 +149,13 @@ def ball_player_ang(bx = ball_x, by = ball_y, px = player_x, py = player_y):
     elif cua == "LD":
         angle = 90 + angle
 
-    return angle
+    toRotate = angle - gameobject.rotation
+    if toRotate < -180:
+        return(toRotate + 360)
+    elif toRotate > 180:
+        return(toRotate - 360)
+    else:
+        return(toRotate)
 
 # sprites
 all_sprites = pygame.sprite.Group()
@@ -157,7 +164,7 @@ ball = Ball()
 all_sprites.add(player)
 all_sprites.add(ball)
 
-player.rotatePlayerTo(ball_player_ang())
+print(ball_player_ang(player))
 
 # display loop
 done = False
