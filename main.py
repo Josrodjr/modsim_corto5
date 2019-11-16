@@ -157,6 +157,26 @@ def ball_player_ang(gameobject, bx = ball_x, by = ball_y, px = player_x, py = pl
     else:
         return(toRotate)
 
+'''
+Ball is reciben valores entre 0 y 420 (WIDTH**2 + HEIGHT**2)**(1/2) da pertenencia a proximidad
+Output [0-1]
+'''
+
+ball_is_close = lambda d: (1/105)*d if (d <= 105) else ((1/105) * d - 1 if (d > 105 and d <= 210) else 0)
+ball_is_medium = lambda d: (1/105)*(d-105) if (d <= 210 and d > 105) else (1 - (1/105) * (d-105) + 1 if (d > 210 and d <= 315) else 0)
+ball_is_far = lambda d: (1/105)*(d-210) if (d <= 315 and d > 210) else (1 - (1/105) * (d-210) + 1 if (d > 315 and d <= 420) else 0)
+
+
+'''
+Angle is reciben valores entre 0 y 360 da pertenencia a direccion
+Output [0-1]
+'''
+# angle_is_near_viejo = lambda a: (1/45)*a if (a <= 45) else ((1/45)*a -6 if (a >= 270 and a <= 315) else (1 - (1/45)*a + 1 if (a > 45 and a <= 90) else (1 - (1/45)*a + 7 if (a > 315 and a <= 360) else 0)))
+angle_is_near = lambda a: (1.0) if (a <= 45) else ((1/45)*a -6 if (a >= 270 and a <= 315) else (1 - (1/45)*a + 1 if (a > 45 and a <= 90) else ( (1.0) if (a > 315 and a <= 360) else 0)))
+angle_is_half = lambda a: (1/45)* (a-45) if (a <= 90 and a > 45) else ((1/45)*a - 5 if (a >= 225 and a <= 270) else (1 - (1/45)*a + 2 if (a > 90 and a <= 135) else (1 - (1/45)*a + 6 if (a > 270 and a <= 315) else 0)))
+angle_is_wide = lambda a: (1/45)*a - 2 if (a >= 90 and a <= 135) else (1 - (1/45)*a + 5 if (a >= 225 and a <= 270) else ( 1 if (a > 135 and a < 225) else 0))
+
+
 # sprites
 all_sprites = pygame.sprite.Group()
 player = Player()
